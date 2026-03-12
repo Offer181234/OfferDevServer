@@ -9,6 +9,7 @@ namespace Interface.Interface
 {
     public interface ITokenService
     {
+        //test
         Task<string> GetJwtToken(ClientDto client, DateTime? expiresIn, string platformToken);
     }
 }
