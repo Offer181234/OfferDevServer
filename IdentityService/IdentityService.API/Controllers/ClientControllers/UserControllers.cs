@@ -35,7 +35,28 @@ namespace IdentityService.API.Controllers.UserControllers
             if (!result)
                 return NotFound("User not found");
 
-            return Ok();
+            return Ok("OTP Sent To Email");
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpDto dto)
+        {
+            var result = await _userService.VerifyOtp(dto);
+
+            if (!result)
+                return BadRequest("Invalid OTP");
+
+            return Ok("OTP Verified");
+        }
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            var result = await _userService.ChangePassword(dto);
+
+            if (!result)
+                return BadRequest("User not found");
+
+            return Ok("Password Changed Successfully");
         }
         // GET api/users
         [HttpGet]

@@ -14,5 +14,7 @@ namespace Interface.Interface
         Task<UserDto?> UpdateUser(Guid id, UpdateUser user);
 
         Task<bool> DeleteUser(Guid id);
+        Task<bool> VerifyOtp(VerifyOtpDto dto);
+        Task<bool> ChangePassword(ChangePasswordDto dto);
     }
 }

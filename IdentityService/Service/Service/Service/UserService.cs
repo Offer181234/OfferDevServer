@@ -9,10 +9,13 @@ namespace Service.Service
     {
         private readonly IdentityDbContext _context;
         EncryptService encryptService = new EncryptService();
+        private readonly IEmailService _emailService;
 
-        public UserService(IdentityDbContext context)
+
+        public UserService(IdentityDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<bool> Login(string email, string password)
@@ -38,8 +41,45 @@ namespace Service.Service
             if (user == null)
                 return false;
 
+            var otp = new Random().Next(100000, 999999).ToString();
+
+            user.ResetOtp = otp;
+            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+
+            await _context.SaveChangesAsync();
+
+            // Email send logic
+            await _emailService.SendEmail(user.Email, "Password Reset OTP", $"Your OTP is {otp}");
+
+            return true;
+        }
+        public async Task<bool> VerifyOtp(VerifyOtpDto dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Email == dto.Email && x.IsActive);
+
+            if (user == null)
+                return false;
+
+            if (user.ResetOtp != dto.Otp || user.OtpExpiry < DateTime.UtcNow)
+                return false;
+
+            return true;
+        }
+
+        public async Task<bool> ChangePassword(ChangePasswordDto dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Email == dto.Email && x.IsActive);
+
+            if (user == null)
+                return false;
+
             user.PasswordHash = encryptService.EncryptString(dto.NewPassword);
             user.ModifiedOn = DateTime.UtcNow;
+
+            user.ResetOtp = null;
+            user.OtpExpiry = null;
 
             await _context.SaveChangesAsync();
 

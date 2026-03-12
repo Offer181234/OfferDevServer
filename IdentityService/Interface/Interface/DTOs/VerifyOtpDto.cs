@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Interface.DTOs
 {
-    public class ForgotPasswordDto
+    public class VerifyOtpDto
     {
         public string? Email { get; set; }
+        public string? Otp { get; set; }
     }
 }

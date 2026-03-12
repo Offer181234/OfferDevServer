@@ -29,5 +29,7 @@ namespace Interface.DTOs
         public DateTime? ModifiedOn { get; set; }
 
         public string? ModifiedBy { get; set; }
+        public string? ResetOtp { get; set; }
+        public DateTime? OtpExpiry { get; set; }
     }
 }

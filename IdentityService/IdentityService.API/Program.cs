@@ -55,6 +55,7 @@ builder.Services.AddScoped<IClaimService, ClaimServices>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IClientClaimService, ClientClaimServices>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // ---------------- SWAGGER ----------------
 builder.Services.AddSwaggerGen(options =>
