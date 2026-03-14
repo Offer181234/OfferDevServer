@@ -18,5 +18,8 @@ namespace Service.Context
         public DbSet<ClaimDto> Claims { get; set; }
 
         public DbSet<ClientClaimDto> ClientClaims { get; set; }
+        public DbSet<UserPermissionDto> UserPermissions { get; set; }
+        public DbSet<PermissionDto> Permissions { get; set; }
+
     }
 }

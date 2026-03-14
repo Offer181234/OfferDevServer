@@ -10,28 +10,121 @@ namespace Service.Service
         private readonly IdentityDbContext _context;
         EncryptService encryptService = new EncryptService();
         private readonly IEmailService _emailService;
+        private readonly ITokenService _tokenService;
 
 
-        public UserService(IdentityDbContext context, IEmailService emailService)
+        public UserService(IdentityDbContext context, IEmailService emailService, ITokenService tokenService)
         {
             _context = context;
             _emailService = emailService;
+            _tokenService = tokenService;
         }
 
-        public async Task<bool> Login(string email, string password)
+        public async Task<LoginResponseDto?> Login(string email, string password)
         {
             var user = await _context.Users
                 .FirstOrDefaultAsync(x => x.Email == email && x.IsActive);
 
             if (user == null)
-                return false;
+                return null;
 
             string decryptedPassword = encryptService.DecryptString(user.PasswordHash);
 
             if (decryptedPassword != password)
-                return false;
+                return null;
 
-            return true;
+            // GET USER PERMISSIONS
+            var permissions = await (
+                from up in _context.UserPermissions
+                join p in _context.Permissions
+                on up.PermissionId equals p.Id
+                where up.UserId == user.Id && up.DeletedOn == true
+                select p.PermissionName
+            ).ToListAsync();
+
+            // Prepare client dto for JWT
+            var client = new ClientDto
+            {
+                Id = user.Id,
+                Name = user.FirstName,
+                Role = user.Role,
+                TokenType = "User",
+                UserType = user.Role,
+                clientClaimDtos = permissions.Select(p => new ClientClaimDto
+                {
+                    ClaimId = Guid.NewGuid()
+                }).ToList()
+            };
+
+            var token = await _tokenService.GetJwtToken(client, null, "");
+
+            return new LoginResponseDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role,
+                Permissions = permissions,
+                Token = token
+            };
+        }
+        public async Task<UserDto?> UpdateUser(Guid id, UpdateUser dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+
+            if (user == null)
+                return null;
+
+            // Update User Info
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.Email = dto.Email;
+            user.Role = dto.Role;
+            user.IsActive = dto.IsActive;
+            user.ModifiedOn = DateTime.UtcNow;
+            user.ModifiedBy = dto.ModifiedBy;
+
+            // Get old permissions
+            var oldPermissions = await _context.UserPermissions
+                .Where(x => x.UserId == id && x.DeletedOn == true)
+                .ToListAsync();
+
+            // Soft delete old permissions
+            foreach (var item in oldPermissions)
+            {
+                item.DeletedOn = false;
+                item.DeletedBy = dto.ModifiedBy;
+            }
+
+            // Add new permissions
+            if (dto.PermissionIds != null && dto.PermissionIds.Any())
+            {
+                var newPermissions = dto.PermissionIds.Select(p => new UserPermissionDto
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = id,
+                    PermissionId = p,
+                    CreatedOn = DateTime.UtcNow,
+                    CreatedBy = dto.ModifiedBy,
+                    DeletedOn = true,
+                    DeletedBy = null
+                });
+
+                await _context.UserPermissions.AddRangeAsync(newPermissions);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role
+            };
         }
         public async Task<bool> ForgotPassword(ForgotPasswordDto dto)
         {
@@ -146,32 +239,32 @@ namespace Service.Service
             return dto;
         }
 
-        public async Task<UserDto?> UpdateUser(Guid id, UpdateUser dto)
-        {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        //public async Task<UserDto?> UpdateUser(Guid id, UpdateUser dto)
+        //{
+        //    var user = await _context.Users
+        //        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
 
-            if (user == null)
-                return null;
+        //    if (user == null)
+        //        return null;
 
-            user.FirstName = dto.FirstName;
-            user.LastName = dto.LastName;
-            user.Email = dto.Email;
-            user.Role = dto.Role;
-            user.IsActive = dto.IsActive;
-            user.ModifiedOn = DateTime.UtcNow;
-            user.ModifiedBy = dto.ModifiedBy;
+        //    user.FirstName = dto.FirstName;
+        //    user.LastName = dto.LastName;
+        //    user.Email = dto.Email;
+        //    user.Role = dto.Role;
+        //    user.IsActive = dto.IsActive;
+        //    user.ModifiedOn = DateTime.UtcNow;
+        //    user.ModifiedBy = dto.ModifiedBy;
 
-            await _context.SaveChangesAsync();
+        //    await _context.SaveChangesAsync();
 
-            return new UserDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email
-            };
-        }
+        //    return new UserDto
+        //    {
+        //        Id = user.Id,
+        //        FirstName = user.FirstName,
+        //        LastName = user.LastName,
+        //        Email = user.Email
+        //    };
+        //}
 
         public async Task<bool> DeleteUser(Guid id)
         {

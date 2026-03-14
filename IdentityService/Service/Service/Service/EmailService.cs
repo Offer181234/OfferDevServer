@@ -1,10 +1,6 @@
 ﻿using Interface.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Service.Service
@@ -25,13 +21,13 @@ namespace Service.Service
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress("ab3041364@gmail.com"),
+                From = new MailAddress("ab3041364@gmail.com"), // Sender Email
                 Subject = subject,
                 Body = message,
                 IsBodyHtml = false,
             };
 
-            mailMessage.To.Add(toEmail);
+            mailMessage.To.Add(toEmail); // Receiver Email
 
             await smtpClient.SendMailAsync(mailMessage);
         }

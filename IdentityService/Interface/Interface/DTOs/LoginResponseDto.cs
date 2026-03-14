@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Interface.DTOs
 {
-    public class UpdateUser
+    public class LoginResponseDto
     {
+        public Guid Id { get; set; }
+
         public string? FirstName { get; set; }
 
         public string? LastName { get; set; }
@@ -16,10 +18,8 @@ namespace Interface.DTOs
 
         public string? Role { get; set; }
 
-        public bool IsActive { get; set; }
+        public List<string> Permissions { get; set; }
 
-        public string? ModifiedBy { get; set; }
-
-        public List<Guid> PermissionIds { get; set; }
+        public string? Token { get; set; }
     }
 }

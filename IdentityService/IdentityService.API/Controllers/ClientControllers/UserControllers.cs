@@ -20,12 +20,22 @@ namespace IdentityService.API.Controllers.UserControllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(string email, string password)
         {
-            var result = await _userService.Login(email, password);
+            var user = await _userService.Login(email, password);
 
-            if (!result)
-                return Unauthorized();
+            if (user == null)
+                return Unauthorized("Invalid credentials");
 
-            return Ok(); // Sirf 200 status code return karega
+            return Ok(user);
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, UpdateUser dto)
+        {
+            var user = await _userService.UpdateUser(id, dto);
+
+            if (user == null)
+                return NotFound("User not found");
+
+            return Ok(user);
         }
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
@@ -60,7 +70,7 @@ namespace IdentityService.API.Controllers.UserControllers
         }
         // GET api/users
         [HttpGet]
-        [Authorize(Policy = PermissionRole.ADMIN)]
+        //[Authorize(Policy = PermissionRole.ADMIN)]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllUsers();
@@ -88,16 +98,16 @@ namespace IdentityService.API.Controllers.UserControllers
         }
 
         // PUT api/users/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, UpdateUser dto)
-        {
-            var user = await _userService.UpdateUser(id, dto);
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> Update(Guid id, UpdateUser dto)
+        //{
+        //    var user = await _userService.UpdateUser(id, dto);
 
-            if (user == null)
-                return NotFound("User not found");
+        //    if (user == null)
+        //        return NotFound("User not found");
 
-            return Ok(user);
-        }
+        //    return Ok(user);
+        //}
 
         // DELETE api/users/{id}
         [HttpDelete("{id}")]
