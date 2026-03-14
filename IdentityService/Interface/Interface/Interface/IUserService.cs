@@ -8,7 +8,7 @@ namespace Interface.Interface
         Task<bool> ForgotPassword(ForgotPasswordDto dto);
         Task<List<UserDto>> GetAllUsers();
 
-        Task<UserDto?> GetUserById(Guid id);
+        Task<UpdateUserPermissionDto?> GetUserById(Guid id);
 
         Task<UserDto> CreateUser(UserDto user);
 

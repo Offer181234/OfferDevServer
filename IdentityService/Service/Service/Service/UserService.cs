@@ -195,7 +195,7 @@ namespace Service.Service
                 .ToListAsync();
         }
 
-        public async Task<UserDto?> GetUserById(Guid id)
+        public async Task<UpdateUserPermissionDto?> GetUserById(Guid id)
         {
             var user = await _context.Users
                 .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
@@ -203,18 +203,34 @@ namespace Service.Service
             if (user == null)
                 return null;
 
-            return new UserDto
+            var permissions = await (
+                from up in _context.UserPermissions
+                join p in _context.Permissions
+                on up.PermissionId equals p.Id
+                where up.UserId == user.Id && up.DeletedOn == true
+                select new UserPageAccessDto
+                {
+                    Id = up.Id,
+                    UserId = up.UserId,
+                    PermissionId = up.PermissionId,
+                    PermissionName = p.PermissionName,   
+                    DeletedOn = up.DeletedOn,
+                    CreatedOn = up.CreatedOn,
+                    CreatedBy = up.CreatedBy,
+                    DeletedBy = up.DeletedBy
+                }
+            ).ToListAsync();
+
+            return new UpdateUserPermissionDto
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
                 Role = user.Role,
-                IsActive = user.IsActive,
-                CreatedOn = user.CreatedOn
+                Permissions = permissions
             };
         }
-
         public async Task<UserDto> CreateUser(UserDto dto)
         {
             var user = new UserDto
