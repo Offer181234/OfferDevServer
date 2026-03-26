@@ -194,7 +194,17 @@ namespace Service.Service
                 })
                 .ToListAsync();
         }
-
+        public async Task<List<PermissionDto>> GetAllPermissions()
+        {
+            return await _context.Permissions
+                .Select(p => new PermissionDto
+                {
+                    Id = p.Id,
+                    PermissionName = p.PermissionName,
+                    Description = p.Description
+                })
+                .ToListAsync();
+        }
         public async Task<UpdateUserPermissionDto?> GetUserById(Guid id)
         {
             var user = await _context.Users

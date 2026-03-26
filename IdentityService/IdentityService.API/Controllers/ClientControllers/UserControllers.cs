@@ -17,6 +17,7 @@ namespace IdentityService.API.Controllers.UserControllers
         {
             _userService = userService;
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(string email, string password)
         {
@@ -76,6 +77,13 @@ namespace IdentityService.API.Controllers.UserControllers
             var users = await _userService.GetAllUsers();
             return Ok(users);
         }
+        [HttpGet("permissions")]
+        public async Task<IActionResult> GetAllPermissions()
+        {
+            var permissions = await _userService.GetAllPermissions();
+            return Ok(permissions);
+        }
+
 
         // GET api/users/{id}
         [HttpGet("{id}")]
