@@ -18,19 +18,47 @@ namespace Service.Service
         public async Task<List<AdvertiserDto>> GetAllAdvertisers()
         {
             return await _context.Advertisers
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive) // optional filter
                 .Select(x => new AdvertiserDto
                 {
                     Id = x.Id,
+
+                    // BASIC
                     FirstName = x.FirstName,
                     LastName = x.LastName,
-                    Email = x.Email,
                     CompanyName = x.CompanyName,
+
+                    // LOGIN
+                    Email = x.Email,
+                    PasswordHash = x.PasswordHash,
+
+                    // RELATION
                     AccountManagerId = x.AccountManagerId,
+
+                    // STATUS
                     Status = x.Status,
                     SendCredentials = x.SendCredentials,
-                    IsActive = x.IsActive
-                }).ToListAsync();
+                    IsActive = x.IsActive,
+
+                    // PROFILE
+                    MobileNumber = x.MobileNumber,
+                    Address = x.Address,
+                    City = x.City,
+                    State = x.State,
+                    Country = x.Country,
+                    ZipCode = x.ZipCode,
+
+                    // ACCOUNT
+                    PostbackIp = x.PostbackIp,
+                    Whitelist = x.Whitelist,
+                    AdditionalInfo = x.AdditionalInfo,
+                    PrivateNote = x.PrivateNote,
+
+                    // AUDIT
+                    CreatedOn = x.CreatedOn,
+                    ModifiedOn = x.ModifiedOn
+                })
+                .ToListAsync();
         }
 
         public async Task<AdvertiserDto?> GetAdvertiserById(int id)
@@ -42,14 +70,41 @@ namespace Service.Service
             return new AdvertiserDto
             {
                 Id = x.Id,
+
+                // BASIC
                 FirstName = x.FirstName,
                 LastName = x.LastName,
-                Email = x.Email,
                 CompanyName = x.CompanyName,
+
+                // LOGIN
+                Email = x.Email,
+                PasswordHash = x.PasswordHash,
+
+                // RELATION
                 AccountManagerId = x.AccountManagerId,
+
+                // STATUS
                 Status = x.Status,
                 SendCredentials = x.SendCredentials,
-                IsActive = x.IsActive
+                IsActive = x.IsActive,
+
+                // 🔥 PROFILE (NEW)
+                MobileNumber = x.MobileNumber,
+                Address = x.Address,
+                City = x.City,
+                State = x.State,
+                Country = x.Country,
+                ZipCode = x.ZipCode,
+
+                // 🔥 ACCOUNT (NEW)
+                PostbackIp = x.PostbackIp,
+                Whitelist = x.Whitelist,
+                AdditionalInfo = x.AdditionalInfo,
+                PrivateNote = x.PrivateNote,
+
+                // AUDIT
+                CreatedOn = x.CreatedOn,
+                ModifiedOn = x.ModifiedOn
             };
         }
 
@@ -76,31 +131,62 @@ namespace Service.Service
             return dto;
         }
 
-        public async Task<AdvertiserDto?> UpdateAdvertiser(int id, UpdateAdvertiserDto dto)
+        public async Task<UpdateAdvertiserDto?> UpdateAdvertiser(int id, UpdateAdvertiserDto dto)
         {
             var entity = await _context.Advertisers.FindAsync(id);
 
             if (entity == null) return null;
 
-            entity.FirstName = dto.FirstName;
-            entity.LastName = dto.LastName;
-            entity.CompanyName = dto.CompanyName;
-            entity.AccountManagerId = dto.AccountManagerId;
+            //entity.FirstName = dto.FirstName;
+            //entity.LastName = dto.LastName;
+            //entity.CompanyName = dto.CompanyName;
+            //entity.AccountManagerId = dto.AccountManagerId;
             entity.Status = dto.Status;
-            entity.IsActive = dto.IsActive;
+            //entity.IsActive = dto.IsActive;
             entity.ModifiedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            return new AdvertiserDto
+            return new UpdateAdvertiserDto
             {
                 Id = entity.Id,
-                FirstName = entity.FirstName,
-                LastName = entity.LastName,
-                Email = entity.Email
+                Status = entity.Status
+                //LastName = entity.LastName,
+                //Email = entity.Email
             };
         }
+        public async Task<UpdateAdvertiserDetailsDto?> UpdateAdvertiserDetails(int id, UpdateAdvertiserDetailsDto dto)
+        {
+            var entity = await _context.Advertisers.FindAsync(id);
 
+            if (entity == null) return null;
+
+            // PROFILE
+            entity.FirstName = dto.FirstName;
+            entity.LastName = dto.LastName;
+            entity.CompanyName = dto.CompanyName;
+            entity.MobileNumber = dto.MobileNumber;
+            entity.Address = dto.Address;
+            entity.City = dto.City;
+            entity.State = dto.State;
+            entity.Country = dto.Country;
+            entity.ZipCode = dto.ZipCode;
+
+            // ACCOUNT
+            entity.Email = dto.Email;
+            entity.IsActive = dto.IsActive;
+            entity.PostbackIp = dto.PostbackIp;
+            entity.Whitelist = dto.Whitelist;
+            entity.AdditionalInfo = dto.AdditionalInfo;
+            entity.PrivateNote = dto.PrivateNote;
+
+            // COMMON
+            entity.ModifiedOn = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return dto;
+        }
         public async Task<bool> DeleteAdvertiser(int id)
         {
             var entity = await _context.Advertisers.FindAsync(id);

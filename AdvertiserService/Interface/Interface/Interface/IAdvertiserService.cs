@@ -12,7 +12,8 @@ namespace Interface.Interface
         Task<List<AdvertiserDto>> GetAllAdvertisers();
         Task<AdvertiserDto?> GetAdvertiserById(int id);
         Task<AdvertiserDto> CreateAdvertiser(AdvertiserDto dto);
-        Task<AdvertiserDto?> UpdateAdvertiser(int id, UpdateAdvertiserDto dto);
+        Task<UpdateAdvertiserDto?> UpdateAdvertiser(int id, UpdateAdvertiserDto dto);
+        Task<UpdateAdvertiserDetailsDto?> UpdateAdvertiserDetails(int id, UpdateAdvertiserDetailsDto dto);
         Task<bool> DeleteAdvertiser(int id);
     }
 }

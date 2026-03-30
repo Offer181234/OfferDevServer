@@ -42,6 +42,15 @@ namespace AdvertiserService.API.Controllers.AdvertiserController
             if (result == null) return NotFound();
             return Ok(result);
         }
+        [HttpPut("details/{id}")]
+        public async Task<IActionResult> UpdateAdvertiserDetails(int id, UpdateAdvertiserDetailsDto dto)
+        {
+            var result = await _service.UpdateAdvertiserDetails(id, dto);
+
+            if (result == null) return NotFound();
+
+            return Ok(result);
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
