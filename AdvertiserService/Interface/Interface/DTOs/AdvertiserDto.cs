@@ -78,5 +78,7 @@ namespace Interface.DTOs
         public string? Whitelist { get; set; }
         public string? AdditionalInfo { get; set; }
         public string? PrivateNote { get; set; }
+        public string? Status { get; set; }
+
     }
 }

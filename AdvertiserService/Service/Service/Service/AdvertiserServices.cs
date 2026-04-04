@@ -179,6 +179,7 @@ namespace Service.Service
             entity.Whitelist = dto.Whitelist;
             entity.AdditionalInfo = dto.AdditionalInfo;
             entity.PrivateNote = dto.PrivateNote;
+            entity.Status = dto.Status;
 
             // COMMON
             entity.ModifiedOn = DateTime.UtcNow;
